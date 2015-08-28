@@ -2,42 +2,43 @@ package main
 
 import (
 	"net/http"
+	"os"
 	"text/template"
 )
 
 func main() {
+	templates := populateTemplates()
+
 	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		w.Header().Add("Content-type", "text/html")
-		tmpl, err := template.New("test").Parse(doc)
-		if err == nil {
-			context := Context{
-				[3]string{"Lemon", "Orange", "Apple"},
-				"The Title",
-			}
-			tmpl.Execute(w, context)
+		requestedFile := req.URL.Path[1:]
+		template := templates.Lookup(requestedFile + ".html")
+
+		if template != nil {
+			template.Execute(w, nil)
+		} else {
+			w.WriteHeader(404)
 		}
 	})
 
 	http.ListenAndServe(":8000", nil)
 }
 
-const doc = `<!DOCTYPE html>
-<html>
-  <head>
-    <title>{{.Title}}</title>
-  </head>
-  <body>
-    <h1>List of Fruit</h1>
-    <ul>
-      {{range .Fruit}}
-      <li>{{.}}</li>
-      {{end}}
-    </ul>
-  </body>
-</html>`
+func populateTemplates() *template.Template {
+	result := template.New("templates")
 
-//Context used as a test to inject text into template
-type Context struct {
-	Fruit [3]string
-	Title string
+	basePath := "templates"
+	templateFolder, _ := os.Open(basePath)
+	defer templateFolder.Close()
+
+	templatePathsRaw, _ := templateFolder.Readdir(-1)
+
+	templatePaths := new([]string)
+	for _, pathInfo := range templatePathsRaw {
+		if !pathInfo.IsDir() {
+			*templatePaths = append(*templatePaths, basePath+"/"+pathInfo.Name())
+		}
+	}
+	result.ParseFiles(*templatePaths...)
+
+	return result
 }
