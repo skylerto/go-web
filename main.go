@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"net/http"
 	"os"
+	"strings"
 	"text/template"
 )
 
@@ -20,7 +22,34 @@ func main() {
 		}
 	})
 
+	http.HandleFunc("/img/", ServeResource)
+	http.HandleFunc("/css/", ServeResource)
+
 	http.ListenAndServe(":8000", nil)
+}
+
+func ServeResource(w http.ResponseWriter, req *http.Request) {
+	path := "public" + req.URL.Path
+	var contentType string
+	if strings.HasSuffix(path, ".css") {
+		contentType = "text/css"
+	} else if strings.HasSuffix(path, ".png") {
+		contentType = "image/png"
+	} else {
+		contentType = "text/plain"
+	}
+
+	f, err := os.Open(path)
+
+	if err == nil {
+		defer f.Close()
+		w.Header().Add("Content-type", contentType)
+
+		br := bufio.NewReader(f)
+		br.WriteTo(w)
+	} else {
+		w.WriteHeader(404)
+	}
 }
 
 func populateTemplates() *template.Template {
