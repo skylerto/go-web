@@ -10,8 +10,8 @@ func main() {
 		w.Header().Add("Content-type", "text/html")
 		tmpl, err := template.New("test").Parse(doc)
 		if err == nil {
-			context := Context{"Meri"}
-			tmpl.Execute(w, context)
+			//context := Context{"Meri"}
+			tmpl.Execute(w, req.URL.Path)
 		}
 	})
 
@@ -24,7 +24,11 @@ const doc = `<!DOCTYPE html>
     <title>Example title</title>
   </head>
   <body>
-    <h1>Hello {{.Message}}</h1>
+    {{if eq . "/Google"}}
+      <h1>Hello Google</h1>
+    {{else}}
+      Hello, {{.}}
+    {{end}}
   </body>
 </html>`
 
