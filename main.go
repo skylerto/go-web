@@ -10,8 +10,11 @@ func main() {
 		w.Header().Add("Content-type", "text/html")
 		tmpl, err := template.New("test").Parse(doc)
 		if err == nil {
-			//context := Context{"Meri"}
-			tmpl.Execute(w, req.URL.Path)
+			context := Context{
+				[3]string{"Lemon", "Orange", "Apple"},
+				"The Title",
+			}
+			tmpl.Execute(w, context)
 		}
 	})
 
@@ -21,18 +24,20 @@ func main() {
 const doc = `<!DOCTYPE html>
 <html>
   <head>
-    <title>Example title</title>
+    <title>{{.Title}}</title>
   </head>
   <body>
-    {{if eq . "/Google"}}
-      <h1>Hello Google</h1>
-    {{else}}
-      Hello, {{.}}
-    {{end}}
+    <h1>List of Fruit</h1>
+    <ul>
+      {{range .Fruit}}
+      <li>{{.}}</li>
+      {{end}}
+    </ul>
   </body>
 </html>`
 
 //Context used as a test to inject text into template
 type Context struct {
-	Message string
+	Fruit [3]string
+	Title string
 }
