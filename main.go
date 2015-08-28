@@ -8,24 +8,32 @@ import (
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
 		w.Header().Add("Content-type", "text/html")
-		tmpl, err := template.New("test").Parse(doc)
-		if err == nil {
-			context := Context{
-				[3]string{"Lemon", "Orange", "Apple"},
-				"The Title",
-			}
-			tmpl.Execute(w, context)
+		//tmpl, err := template.New("test").Parse(doc)
+		templates := template.New("template")
+		templates.New("test").Parse(doc)
+		templates.New("header").Parse(header)
+		template.New("footer").Parse(footer)
+
+		context := Context{
+			[3]string{"Lemon", "Orange", "Apple"},
+			"The Title",
 		}
+		templates.Lookup("test").Execute(w, context)
+
 	})
 
 	http.ListenAndServe(":8000", nil)
 }
 
-const doc = `<!DOCTYPE html>
+const header = `<!DOCTYPE html>
 <html>
   <head>
-    <title>{{.Title}}</title>
+    <title>{{.}}</title>
   </head>
+`
+
+const doc = `
+{{template "header" .Title}}
   <body>
     <h1>List of Fruit</h1>
     <ul>
@@ -34,7 +42,10 @@ const doc = `<!DOCTYPE html>
       {{end}}
     </ul>
   </body>
-</html>`
+  {{template "footer"}}
+`
+
+const footer = `</html>`
 
 //Context used as a test to inject text into template
 type Context struct {
