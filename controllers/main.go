@@ -6,34 +6,25 @@ import (
 	"os"
 	"strings"
 	"text/template"
-
-	"github.com/skylerto/main/views"
 )
 
+//Register registers the controllers
 func Register(templates *template.Template) {
-	http.HandleFunc("/",
-		func(w http.ResponseWriter, req *http.Request) {
-			requestedFile := req.URL.Path[1:]
-			template :=
-				templates.Lookup(requestedFile + ".html")
+	/*
+	*	Setup a new route
+	 */
+	//create a new pointer to the homeController
+	hc := new(homeController)
+	hc.template = templates.Lookup("home.html")
+	http.HandleFunc("/", hc.get)
 
-			var context interface{} = nil
-			switch requestedFile {
-			case "home":
-				context = views.GetHome()
-			case "categories":
-				context = views.GetCategories()
-			case "products":
-				context = views.GetProducts()
-			case "product":
-				context = views.GetProduct()
-			}
-			if template != nil {
-				template.Execute(w, context)
-			} else {
-				w.WriteHeader(404)
-			}
-		})
+	/*
+	*	Setup a new route
+	 */
+	//create a new pointer to the homeController
+	cc := new(categoriesController)
+	cc.template = templates.Lookup("categories.html")
+	http.HandleFunc("/categories", cc.get)
 
 	http.HandleFunc("/img/", serveResource)
 	http.HandleFunc("/css/", serveResource)
