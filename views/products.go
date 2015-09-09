@@ -6,11 +6,29 @@ type Products struct {
 	Products []Product
 }
 
-func GetProducts() Products {
+func GetProducts(id int) Products {
 	var result Products
+	var shopName string
+	switch id {
+	case 1:
+		shopName = "Juice"
+	case 2:
+		shopName = "Supply"
+	case 3:
+		shopName = "Advertising"
+	}
 	result.Active = "shop"
-	result.Title = "Lemonade Stand Society - Juice Shop"
+	result.Title = "Lemonade Stand Society - " + shopName + " Shop"
 
+	if id == 1 {
+		result.Products = getProductList()
+
+	}
+
+	return result
+}
+
+func getProductList() []Product {
 	lemonJuice := MakeLemonJuiceProduct()
 	appleJuice := MakeAppleJuiceProduct()
 	watermelonJuice := MakeWatermelonJuiceProduct()
@@ -20,7 +38,7 @@ func GetProducts() Products {
 	pineappleJuice := MakePineappleJuiceProduct()
 	strawberryJuice := MakeStrawberryJuiceProduct()
 
-	result.Products = []Product{
+	result := []Product{
 		lemonJuice,
 		appleJuice,
 		watermelonJuice,
@@ -40,7 +58,7 @@ type ProductVM struct {
 	Product Product
 }
 
-func GetProduct() ProductVM {
+func GetProduct(id int) ProductVM {
 	var result ProductVM
 
 	result.Active = "shop"

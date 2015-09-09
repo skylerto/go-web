@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"text/template"
 
+	"github.com/skylerto/main/controllers/util"
 	"github.com/skylerto/main/views"
 )
 
@@ -17,5 +18,8 @@ func (home *homeController) get(w http.ResponseWriter, req *http.Request) {
 	vm := views.GetHome()
 
 	w.Header().Add("Content-type", "text/html")
-	home.template.Execute(w, vm)
+	responseWriter := util.GetResponseWriter(w, req)
+	defer responseWriter.Close()
+
+	home.template.Execute(responseWriter, vm)
 }

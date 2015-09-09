@@ -10,29 +10,40 @@ import (
 	"github.com/skylerto/main/views"
 )
 
-type categoriesController struct {
+type product struct {
 	template *template.Template
 }
 
-func (cc *categoriesController) get(w http.ResponseWriter, req *http.Request) {
-	vm := views.GetCategories()
+func (pc *product) get(w http.ResponseWriter, req *http.Request) {
 
-	w.Header().Add("Content-Type", "text/html")
-	cc.template.Execute(w, vm)
+	vars := mux.Vars(req)
+
+	idRaw := vars["id"]
+
+	id, err := strconv.Atoi(idRaw)
+	if err == nil {
+		vm := views.GetProduct(id)
+		w.Header().Add("Content-Type", "text/html")
+		pc.template.Execute(w, vm)
+	} else {
+		w.WriteHeader(404)
+	}
 }
 
-type categoryController struct {
+type productController struct {
 	template *template.Template
 }
 
-func (cc *categoryController) get(w http.ResponseWriter, req *http.Request) {
+func (cc *productController) get(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	idRaw := vars["id"]
 
 	id, err := strconv.Atoi(idRaw)
 
 	if err == nil {
+
 		vm := views.GetProducts(id)
+
 		w.Header().Add("Content-type", "text/html")
 		responseWriter := util.GetResponseWriter(w, req)
 		defer responseWriter.Close()
